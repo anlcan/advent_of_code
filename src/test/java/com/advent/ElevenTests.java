@@ -56,8 +56,20 @@ public class ElevenTests {
     void gridPuzzle(){
         Grid g = new Grid(300);
         System.out.println( g.largestTotalPower(5177));
-
     }
 
+    @Test
+    void gridVariantTest(){
+        /*
+        For grid serial number 18, the largest total square (with a total power of 113) is 16x16 and has a top-left corner of 90,269, so its identifier is 90,269,16.
+        For grid serial number 42, the largest total square (with a total power of 119) is 12x12 and has a top-left corner of 232,251, so its identifier is 232,251,12.
+         */
+
+        Grid g = new Grid(300);
+        assertEquals("90,269,16", g.largestPowerSquare(18));
+
+//        Grid g2 = new Grid(300);
+//        assertEquals("232,251,12", g2.largestTotalPower(42));
+    }
 
 }
