@@ -34,28 +34,23 @@ public class ElevenTests {
     @Test
     void gridTest(){
 
-        Grid g = new Grid(10);
+        Grid g = new Grid(10,0);
         assertEquals(10*10, g.cells.size());
-
-        assertEquals(4, g.getPowerCellsFor(0,0,2).size());
-        assertEquals(9, g.getPowerCellsFor(0,0,3).size());
-        assertEquals(16, g.getPowerCellsFor(0,0,4).size());
-
 
     }
 
     @Test
     void gridPowerTest() {
-        Grid g = new Grid(300);
-        assertEquals("33,45", g.largestTotalPower(18));
-        assertEquals("21,61", g.largestTotalPower(42));
+
+        assertEquals("33,45", new Grid(300, 18).largestTotalPower());
+        assertEquals("21,61", new Grid(300, 42).largestTotalPower());
 
     }
 
     @Test
     void gridPuzzle(){
-        Grid g = new Grid(300);
-        System.out.println( g.largestTotalPower(5177));
+        Grid g = new Grid(300, 5177);
+        System.out.println( g.largestTotalPower());
     }
 
     @Test
@@ -65,11 +60,20 @@ public class ElevenTests {
         For grid serial number 42, the largest total square (with a total power of 119) is 12x12 and has a top-left corner of 232,251, so its identifier is 232,251,12.
          */
 
-        Grid g = new Grid(300);
-        assertEquals("90,269,16", g.largestPowerSquare(18));
+        Grid g = new Grid(300,18);
+        assertEquals("90,269,16", g.largestPowerSquare());
 
 //        Grid g2 = new Grid(300);
 //        assertEquals("232,251,12", g2.largestTotalPower(42));
+    }
+
+    @Test
+    void gridSpeedTest() {
+//        Grid g = new Grid(150,18);
+//        System.out.println(g.largestPowerSquare());
+
+        Grid g = new Grid(100,18);
+        System.out.println(g.largestPowerSquare());
     }
 
 }
