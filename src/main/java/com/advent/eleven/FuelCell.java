@@ -5,17 +5,17 @@ package com.advent.eleven;
  */
 public class FuelCell {
 
-    public int x;
-    public int y;
+    public short x;
+    public short y;
 
     public int value;
 
-    public FuelCell(int x, int y) {
+    public FuelCell(short x, short y) {
         this.x = x;
         this.y = y;
     }
 
-    public FuelCell(int x, int y, int input) {
+    public FuelCell(short x, short y, int input) {
         this.x = x;
         this.y = y;
         this.value = getPowerLevel(input);
@@ -29,13 +29,13 @@ public class FuelCell {
      * Keep only the hundreds digit of the power level (so 12345 becomes 3; numbers with no hundreds digit become 0).
      * Subtract 5 from the power level.
      */
-    public  int getPowerLevel(final int input) {
-        return getPowerLevel(x,y, input);
+    public int getPowerLevel(final int input) {
+        return getPowerLevel(x, y, input);
     }
 
-    public  static int getPowerLevel(int x, int y, final int input) {
+    public static int getPowerLevel(int x, int y, final int input) {
 
-        int rackId = x+10;
+        int rackId = x + 10;
         int powerLevel = rackId * y;
         powerLevel += input;
         powerLevel = powerLevel * rackId;
@@ -43,10 +43,15 @@ public class FuelCell {
             powerLevel = 0;
         } else {
 //            powerLevel = Math.floorMod(powerLevel, 1000) % 10;
-            powerLevel = (powerLevel /100)  % 10;
+            powerLevel = (powerLevel / 100) % 10;
         }
 
-        return  powerLevel-5;
+        return powerLevel - 5;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%2d, %2d | %2d)", x,y,value);
 
     }
 }

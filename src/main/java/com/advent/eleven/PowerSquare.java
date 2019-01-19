@@ -5,13 +5,13 @@ package com.advent.eleven;
  */
 public class PowerSquare implements  Comparable{
 
-    public final int x;
-    public final int y;
+    public final short x;
+    public final short y;
 
     public final int size;
     private int value;
 
-    public PowerSquare(int x, int y, int size) {
+    public PowerSquare(short x, short y, int size) {
         this.x = x;
         this.y = y;
         this.size = size;
@@ -28,7 +28,7 @@ public class PowerSquare implements  Comparable{
 
     @Override
     public String toString() {
-        return x + ","+ y + "," + size;
+        return x + ","+ y + "," + (size + 1);
     }
 
     @Override

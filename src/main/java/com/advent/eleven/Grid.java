@@ -1,7 +1,7 @@
 package com.advent.eleven;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 /**
@@ -9,22 +9,25 @@ import java.util.stream.IntStream;
  */
 public class Grid {
 
-    public static final int DEFAULT_SQUARE_SIZE = 3;
+    public static final short ANY_SQUARE_SIZE = -1;
 
-    public final Map<String, FuelCell> cells = new HashMap<>();
-    public final Map<String, Integer> powers = new HashMap<>();
-    public final Map<String, PowerSquare> powersVariant = new HashMap<>();
+    public final Map<String, FuelCell> cells;
+    public final Map<String, PowerSquare> powersVariant;
 
     private final int gridSize;
-    private final int serialNumber;
+    private final short serialNumber;
 
     public Grid(final int size, final int serialNumber) {
         this.gridSize = size;
-        this.serialNumber = serialNumber;
+        this.serialNumber = (short)serialNumber;
+
+        this.cells = new HashMap<>(size * size);
+//        this.powersVariant = new HashMap<>();
+        this.powersVariant = new HashMap<>(size * size * (size/3));
 
         IntStream.rangeClosed(1, size)
                 .forEach(i -> IntStream.rangeClosed(1, size)
-                        .forEach(j -> cells.put(key(i, j), new FuelCell(i, j, serialNumber))));
+                        .forEach(j -> cells.put(key(i, j), new FuelCell((short)i, (short)j, serialNumber))));
 
     }
 
@@ -32,135 +35,101 @@ public class Grid {
         return i + "," + j;
     }
 
-    /* calculates a row */
-    private Map<String, Integer> getPowerCellsLevelInTheRow(int i) {
-        return IntStream.range(1, cells.size() - DEFAULT_SQUARE_SIZE)
-                .boxed()
-//                .parallel()
-                .collect(Collectors
-                        .toMap(j -> key(i, j),
-                                j -> getPowerCellsLevel(i, j, serialNumber)));
-    }
-
-    private void setPowerCellsLevelInTheRow(final int i, final int squareSize) {
-        IntStream.range(1, gridSize - squareSize)
-                .boxed()
-//                .parallel()
-                .forEach(j -> powers.put(key(i, j), getPowerCellsLevel(i, j, squareSize)));
-    }
-
-    public String largestTotalPower(final int squareSize) {
-
-        return largestTotalPowerEntry(squareSize).getKey();
-    }
-
-
-    private Map.Entry<String, Integer> largestTotalPowerEntry(final int squareSize) {
-        IntStream.range(1, gridSize - squareSize)
-                .boxed()
-                .forEach(i -> setPowerCellsLevelInTheRow(i, squareSize));
-
-        return Collections.max(powers.entrySet(),
-                Comparator.comparingInt(Map.Entry::getValue));
-    }
 
     public String largestPowerSquare() {
+        return largestPowerSquare(ANY_SQUARE_SIZE);
+    }
 
-//        IntStream.range(1, gridSize)
-//                .boxed()
-//                .forEach(x -> IntStream.range(1, gridSize)
-//                        .parallel()
-//                        .forEach(y -> IntStream.range(0, Math.min(gridSize -x, gridSize - y))
-//                                .boxed()
-//
-//                                .forEach(s -> {
-//
-//
-//                                    PowerSquare ps = new PowerSquare(x,y,s);
-//                                    ps.setValue(getPowerCellsLevel(x, y, s));
-//
-//                                    powersVariant.put(ps.toString(), ps);
-//                                })));
-
-        for ( int x = 1; x < gridSize; x++) {
-            for (int y = 1; y < gridSize; y++) {
-//                for (int s = 0; s < Math.min(gridSize - x, gridSize - y); s++) {
-//                    PowerSquare ps = new PowerSquare(x, y, s);
-//                    ps.setValue(getPowerCellsLevel(x, y, s));
-//
-//                    powersVariant.put(ps.toString(), ps);
-//                }
-                final int x_ = x;
-                final int y_ = y;
-                IntStream.range(0, Math.min(gridSize - x_, gridSize - y_))
-                                .boxed()
-                                .parallel()
-                                .forEach(s -> {
+    public String largestPowerSquare(final short desiredSize) {
 
 
-                                    PowerSquare ps = new PowerSquare(x_,y_,s);
-                                    ps.setValue(getPowerCellsLevel(x_, y_, s));
+        Consumer<FuelCell> fixed = desiredSize == ANY_SQUARE_SIZE ? new AllSquares() : new FixedSquare(desiredSize);
+        cells.values().stream()
+                //.parallel()
+                .forEach(fixed);
 
-                                    powersVariant.put(ps.toString(), ps);
-                                });
-            }
 
-        }
-
-//        return Collections.max(powersVariant.entrySet(),
-//                Comparator.comparingInt(Map.Entry::getValue)).getKey();
-
-        List<PowerSquare> ps = new ArrayList(powersVariant.values());
+        List<PowerSquare> ps = new ArrayList<>(powersVariant.values());
 
 
         Collections.sort(ps);
+        System.out.println("final:" + ps.size());
+        System.out.println(ps.get(0).getValue());
+
         return ps.get(0).toString();
     }
 
+    public Integer getPowerCellsLevel(final short x, final short y, final int squareSize) {
 
-    public Integer getPowerCellsLevel(final int x, final int y, final int squareSize) {
-
-//       return IntStream.range(x, x + squareSize)
-//                .boxed()
-//                .mapToInt(i -> IntStream.range(y, y + squareSize)
-//                        .boxed()
-//                        .mapToInt(j -> cells.get(key(i, j)).value)
-//                        .sum())
-//                .sum();
-        if (squareSize > 0) {
+        if (squareSize > 1) {
             PowerSquare smaller = new PowerSquare(x, y, squareSize - 1);
             PowerSquare powerSquare = powersVariant.get(smaller.toString());
             if (powerSquare != null) {
                 int sum = powerSquare.getValue();
-                for (int i = x; i < x + squareSize; i++) {
-                    sum += cells.get(key(i, y+squareSize)).value;
+                for (int i = x; i <= x + squareSize; i++) {
+                    sum += cells.get(key(i, y + squareSize)).value;
                 }
-                for (int j = y; j < y + squareSize; j++) {
-                    sum += cells.get(key(x+squareSize, j)).value;
+                for (int j = y; j <= y + squareSize - 1; j++) {
+                    sum += cells.get(key(x + squareSize, j)).value;
                 }
 
                 return sum;
-
             }
-
         }
-
+1
         int sum = 0;
-        for (int i = x; i < x + squareSize; i++) {
-            for (int j = y; j < y + squareSize; j++) {
-                sum += cells.get(key(i, j)).value;
+        for (short i = x; i <= x + squareSize; i++) {
+            for (short j = y; j <= y + squareSize; j++) {
+                //sum += cells.get(key(i, j)).value;
+                sum += new FuelCell(i, j, serialNumber).value;
             }
         }
         return sum;
     }
 
-    public Integer getPowerCellsLevel(final int x, final int y) {
-        return getPowerCellsLevel(x, y, DEFAULT_SQUARE_SIZE);
+    public void print() {
+        IntStream.rangeClosed(1, gridSize).boxed()
+                .forEach(x -> IntStream.rangeClosed(1, gridSize).boxed()
+                        .forEach(y -> {
+                            FuelCell fc = cells.get(key(x, y));
+
+                            System.out.print(String.format("%3d", fc.value));
+                            if (fc.y % gridSize == 0) {
+                                System.out.println();
+                            }
+                        }));
     }
 
+    private class BaseSquare {
+        void setPowerVariant(FuelCell fc, int desired) {
+            PowerSquare ps = new PowerSquare(fc.x, fc.y, desired);
+            ps.setValue(getPowerCellsLevel(fc.x, fc.y, desired));
 
-    public String largestTotalPower() {
-        return largestTotalPower(DEFAULT_SQUARE_SIZE);
+            powersVariant.put(ps.toString(), ps);
+        }
     }
 
+    private final class FixedSquare extends BaseSquare implements Consumer<FuelCell> {
+        final short desired;
+
+        FixedSquare(short desired) {
+            this.desired = desired;
+        }
+
+        @Override
+        public void accept(FuelCell fc) {
+
+            setPowerVariant(fc, desired);
+        }
+    }
+
+    private final class AllSquares extends BaseSquare implements Consumer<FuelCell> {
+
+        @Override
+        public void accept(FuelCell fc) {
+            IntStream.rangeClosed(1, Math.min(gridSize - fc.x, gridSize - fc.y))
+                    .parallel()
+                    .forEach(s -> setPowerVariant(fc, s));
+        }
+    }
 }
