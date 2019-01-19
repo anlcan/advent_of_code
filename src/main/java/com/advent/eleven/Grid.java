@@ -12,19 +12,18 @@ public class Grid {
     public static final short ANY_SQUARE_SIZE = -1;
 
     public final Map<String, FuelCell> cells;
-    public final Map<String, PowerSquare> powersVariant;
+    public final PowerSquare[][][] powersVariant;
 
     private final int gridSize;
     private final short serialNumber;
+
 
     public Grid(final int size, final int serialNumber) {
         this.gridSize = size;
         this.serialNumber = (short)serialNumber;
 
         this.cells = new HashMap<>(size * size);
-//        this.powersVariant = new HashMap<>();
-        this.powersVariant = new HashMap<>(size * size * (size/3));
-
+        this.powersVariant = new PowerSquare[size][size][size];
         IntStream.rangeClosed(1, size)
                 .forEach(i -> IntStream.rangeClosed(1, size)
                         .forEach(j -> cells.put(key(i, j), new FuelCell((short)i, (short)j, serialNumber))));
@@ -45,42 +44,52 @@ public class Grid {
 
         Consumer<FuelCell> fixed = desiredSize == ANY_SQUARE_SIZE ? new AllSquares() : new FixedSquare(desiredSize);
         cells.values().stream()
-                //.parallel()
+                .parallel()
                 .forEach(fixed);
 
 
-        List<PowerSquare> ps = new ArrayList<>(powersVariant.values());
 
+        SortedSet<PowerSquare> sortedSet = new TreeSet<>();
 
-        Collections.sort(ps);
-        System.out.println("final:" + ps.size());
-        System.out.println(ps.get(0).getValue());
+        for (int i = 0; i < this.gridSize; i++) {
+            for (int j = 0; j < this.gridSize; j++) {
+                for (int k = 0; k < this.gridSize; k++) {
+                    if (powersVariant[i][j][k] != null){
+                        sortedSet.add(powersVariant[i][j][k]);
+                    }
+                }
+            }
+        }
 
-        return ps.get(0).toString();
+        return sortedSet.first().toString();
+
     }
 
     public Integer getPowerCellsLevel(final short x, final short y, final int squareSize) {
 
         if (squareSize > 1) {
-            PowerSquare smaller = new PowerSquare(x, y, squareSize - 1);
-            PowerSquare powerSquare = powersVariant.get(smaller.toString());
+//            PowerSquare smaller = new PowerSquare(x, y, squareSize - 1);
+            PowerSquare powerSquare = powersVariant[x][y][squareSize-1];
             if (powerSquare != null) {
                 int sum = powerSquare.getValue();
-                for (int i = x; i <= x + squareSize; i++) {
-                    sum += cells.get(key(i, y + squareSize)).value;
+
+                short y_= (short) (y+ squareSize);
+                short x_ = (short) (x+ squareSize);
+
+                for (short i = x; i <= x + squareSize; i++) {
+                    sum +=  FuelCell.getPowerLevel(i, y_, serialNumber);
                 }
-                for (int j = y; j <= y + squareSize - 1; j++) {
-                    sum += cells.get(key(x + squareSize, j)).value;
+                for (short j = y; j <= y + squareSize - 1; j++) {
+                    sum +=  FuelCell.getPowerLevel(x_, j, serialNumber);
                 }
 
                 return sum;
             }
         }
-1
+
         int sum = 0;
         for (short i = x; i <= x + squareSize; i++) {
             for (short j = y; j <= y + squareSize; j++) {
-                //sum += cells.get(key(i, j)).value;
                 sum += new FuelCell(i, j, serialNumber).value;
             }
         }
@@ -105,7 +114,7 @@ public class Grid {
             PowerSquare ps = new PowerSquare(fc.x, fc.y, desired);
             ps.setValue(getPowerCellsLevel(fc.x, fc.y, desired));
 
-            powersVariant.put(ps.toString(), ps);
+            powersVariant[fc.x][fc.y][desired] = ps;
         }
     }
 
@@ -128,7 +137,7 @@ public class Grid {
         @Override
         public void accept(FuelCell fc) {
             IntStream.rangeClosed(1, Math.min(gridSize - fc.x, gridSize - fc.y))
-                    .parallel()
+//                    .parallel()
                     .forEach(s -> setPowerVariant(fc, s));
         }
     }

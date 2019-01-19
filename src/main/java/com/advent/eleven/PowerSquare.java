@@ -3,7 +3,7 @@ package com.advent.eleven;
 /**
  * Created on 2019-01-16.
  */
-public class PowerSquare implements  Comparable{
+public class PowerSquare implements Comparable {
 
     public final short x;
     public final short y;
@@ -28,11 +28,15 @@ public class PowerSquare implements  Comparable{
 
     @Override
     public String toString() {
-        return x + ","+ y + "," + (size + 1);
+        return x + "," + y + "," + (size + 1);
     }
 
     @Override
     public int compareTo(Object o) {
-        return Integer.compare(((PowerSquare)o).getValue(),value);
+        if (null == o) {
+            return 1;
+        } else {
+            return Integer.compare(((PowerSquare) o).getValue(), value);
+        }
     }
 }
