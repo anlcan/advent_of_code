@@ -18,13 +18,19 @@ public class OneTests {
 
     @Test
     void frequencyTest() {
-        Frequency f = new Frequency();
-        Integer[] t = {1,-2, -3};
+        Frequency f = new Frequency(0);
+        Integer[] t = {1, -2, -3};
         assertEquals(-6, f.apply(Stream.of(t).collect(Collectors.toList())));
     }
 
+    @Test
+    void repeatingFrequencyTest() {
+        Frequency f = new Frequency(0);
+        Integer[] t = {+1, -2, +3, +1};
+        assertEquals(2, f.getFirstRepeatingFrequency(Arrays.asList(t)));
+    }
 
-    public  List<Integer> readFrequency(final String path) {
+    public List<Integer> readFrequency(final String path) {
 
 
         try {
@@ -38,11 +44,20 @@ public class OneTests {
         }
     }
 
+
     @Test
-    void input1(){
-        Frequency f = new Frequency();
+    void input1() {
+        Frequency f = new Frequency(0);
         java.util.List<Integer> integers = readFrequency("/one/input_1.txt");
         int apply = f.apply(integers);
+        System.out.println(apply);
+    }
+
+    @Test
+    void input2() {
+        Frequency f = new Frequency(0);
+        java.util.List<Integer> integers = readFrequency("/one/input_1.txt");
+        int apply = f.getFirstRepeatingFrequency(integers);
         System.out.println(apply);
     }
 
