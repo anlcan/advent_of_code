@@ -54,8 +54,7 @@ public class TwoTests {
     void input2() {
         List<String> integers = Util.readStrings("/two/input_1.txt");
         String v = new IdentifierManager(integers).commonLetters();
-        System.out.println(v);
-//        assertEquals(8892, v);
+        assertEquals("zihwtxagifpbsnwleydukjmqv", v);
     }
 
     @Test
