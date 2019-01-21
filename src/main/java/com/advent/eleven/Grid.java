@@ -1,6 +1,9 @@
 package com.advent.eleven;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
@@ -20,13 +23,13 @@ public class Grid {
 
     public Grid(final int size, final int serialNumber) {
         this.gridSize = size;
-        this.serialNumber = (short)serialNumber;
+        this.serialNumber = (short) serialNumber;
 
         this.cells = new HashMap<>(size * size);
         this.powersVariant = new PowerSquare[size][size][size];
         IntStream.rangeClosed(1, size)
                 .forEach(i -> IntStream.rangeClosed(1, size)
-                        .forEach(j -> cells.put(key(i, j), new FuelCell((short)i, (short)j, serialNumber))));
+                        .forEach(j -> cells.put(key(i, j), new FuelCell((short) i, (short) j, serialNumber))));
 
     }
 
@@ -48,13 +51,12 @@ public class Grid {
                 .forEach(fixed);
 
 
-
         SortedSet<PowerSquare> sortedSet = new TreeSet<>();
 
         for (int i = 0; i < this.gridSize; i++) {
             for (int j = 0; j < this.gridSize; j++) {
                 for (int k = 0; k < this.gridSize; k++) {
-                    if (powersVariant[i][j][k] != null){
+                    if (powersVariant[i][j][k] != null) {
                         sortedSet.add(powersVariant[i][j][k]);
                     }
                 }
@@ -67,25 +69,23 @@ public class Grid {
 
     public Integer getPowerCellsLevel(final short x, final short y, final int squareSize) {
 
-        if (squareSize > 1) {
-//            PowerSquare smaller = new PowerSquare(x, y, squareSize - 1);
-            PowerSquare powerSquare = powersVariant[x][y][squareSize-1];
-            if (powerSquare != null) {
-                int sum = powerSquare.getValue();
+        PowerSquare powerSquare = powersVariant[x][y][squareSize - 1];
+        if (powerSquare != null) {
+            int sum = powerSquare.getValue();
 
-                short y_= (short) (y+ squareSize);
-                short x_ = (short) (x+ squareSize);
+            short y_ = (short) (y + squareSize);
+            short x_ = (short) (x + squareSize);
 
-                for (short i = x; i <= x + squareSize; i++) {
-                    sum +=  FuelCell.getPowerLevel(i, y_, serialNumber);
-                }
-                for (short j = y; j <= y + squareSize - 1; j++) {
-                    sum +=  FuelCell.getPowerLevel(x_, j, serialNumber);
-                }
-
-                return sum;
+            for (short i = x; i <= x + squareSize; i++) {
+                sum += FuelCell.getPowerLevel(i, y_, serialNumber);
             }
+            for (short j = y; j < y + squareSize; j++) {
+                sum += FuelCell.getPowerLevel(x_, j, serialNumber);
+            }
+
+            return sum;
         }
+
 
         int sum = 0;
         for (short i = x; i <= x + squareSize; i++) {
