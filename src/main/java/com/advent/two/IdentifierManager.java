@@ -19,15 +19,15 @@ public class IdentifierManager {
 
     public int checksum() {
 
-        int two = ids.stream()
-                .mapToInt(c -> multipleOfThree(c) ? 1 : 0)
-                .sum();
+        long two = ids.stream()
+                .filter(this::multipleOfThree)
+                .count();
 
-        int three = ids.stream()
-                .mapToInt(c -> multipleOfTwo(c) ? 1 : 0)
-                .sum();
+        long three = ids.stream()
+                .filter(this::multipleOfTwo)
+                .count();
 
-        return two * three;
+        return (int) (two * three);
     }
 
     private boolean multipleOf(final String s, final int n) {
@@ -51,4 +51,39 @@ public class IdentifierManager {
     }
 
 
+    public String commonLetters() {
+        for (String first : ids) {
+            for (String second : ids) {
+                if (diff(first, second, 1)) {
+                    return common(first, second);
+                }
+            }
+        }
+
+        throw new RuntimeException("No match found");
+    }
+
+    public String common(String first, String second) {
+        StringBuffer buffer = new StringBuffer();
+        char[] firstChars = first.toCharArray();
+        char[] secondChars = second.toCharArray();
+        for (int j = 0; j < firstChars.length; j++) {
+            if (firstChars[j] == secondChars[j]) {
+                buffer.append(firstChars[j]);
+            }
+        }
+
+        return buffer.toString();
+
+    }
+
+    public boolean diff(String first, String second, int i) {
+        char[] chars = first.toCharArray();
+        if (chars.length != second.toCharArray().length) {
+            return false;
+        } else {
+
+            return i == (first.length() - common(first, second).length());
+        }
+    }
 }
