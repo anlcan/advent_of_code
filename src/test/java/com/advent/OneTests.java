@@ -3,9 +3,7 @@ package com.advent;
 import com.advent.one.Frequency;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,25 +28,11 @@ public class OneTests {
         assertEquals(2, f.getFirstRepeatingFrequency(Arrays.asList(t)));
     }
 
-    public List<Integer> readFrequency(final String path) {
-
-
-        try {
-            java.net.URL url = this.getClass().getResource(path);
-            String content = new String(java.nio.file.Files.readAllBytes(Paths.get(url.toURI())), "UTF8");
-            return Arrays.stream(content.split("\n")).map(Integer::valueOf).collect(Collectors.toList());
-
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     @Test
     void input1() {
         Frequency f = new Frequency(0);
-        java.util.List<Integer> integers = readFrequency("/one/input_1.txt");
+        java.util.List<Integer> integers = Util.readFrequency( "/one/input_1.txt");
         int apply = f.apply(integers);
         System.out.println(apply);
     }
@@ -56,7 +40,7 @@ public class OneTests {
     @Test
     void input2() {
         Frequency f = new Frequency(0);
-        java.util.List<Integer> integers = readFrequency("/one/input_1.txt");
+        java.util.List<Integer> integers = Util.readFrequency( "/one/input_1.txt");
         int apply = f.getFirstRepeatingFrequency(integers);
         System.out.println(apply);
     }

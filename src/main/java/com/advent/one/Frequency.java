@@ -7,7 +7,6 @@ import java.util.List;
  * Created on 2019-01-21.
  */
 public class Frequency {
-    public static final int NO_FREQUENCY = Integer.MIN_VALUE;
 
     private int startingFrequency = 0;
     private List<Integer> pastFrequencies = new ArrayList<>();
