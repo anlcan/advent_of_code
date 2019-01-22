@@ -41,11 +41,18 @@ public class FourTests {
 
         assertEquals(logs, GuardWatcher.sortLogs(shuffled));
         assertEquals(240, GuardWatcher.strategyOne(logs));
+        assertEquals(4455, GuardWatcher.strategyTwo(logs));
     }
 
     @Test
     void input1(){
         List<String> rawLogs = Util.readStrings("/four/input.txt");
-        System.out.println(GuardWatcher.strategyOne(rawLogs));
+        assertEquals(67558,GuardWatcher.strategyOne(rawLogs));
+    }
+
+    @Test
+    void input2(){
+        List<String> rawLogs = Util.readStrings("/four/input.txt");
+        assertEquals(78990,GuardWatcher.strategyTwo(rawLogs));
     }
 }

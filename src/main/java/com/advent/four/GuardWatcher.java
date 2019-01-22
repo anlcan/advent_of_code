@@ -48,8 +48,7 @@ public class GuardWatcher {
         return sorted;
     }
 
-    public static int strategyOne(List<String> logsRaw) {
-
+    private static List<GuardLog> guardLogs(List<String> logsRaw){
         List<String> logs = sortLogs(logsRaw);
 
         int start = 0;
@@ -83,6 +82,18 @@ public class GuardWatcher {
 
         }
 
+        return guardLogs;
+    }
+
+    public static int strategyTwo(List<String> logsRaw) {
+        List<GuardLog> guardLogs = guardLogs(logsRaw);
+        Collections.sort(guardLogs, GuardLog::compareTo2);
+        return guardLogs.get(0).sleepId();
+    }
+
+    public static int strategyOne(List<String> logsRaw) {
+
+        List<GuardLog> guardLogs = guardLogs(logsRaw);
         Collections.sort(guardLogs);
         return guardLogs.get(0).sleepId();
     }
@@ -90,7 +101,7 @@ public class GuardWatcher {
     static final class GuardLog implements Comparable {
         Integer id;
         List<Integer> sleeps;
-        List<IntStream> wasSleep;
+        List<Integer> wasSleep;
 
         public GuardLog(Integer id) {
             this.id = id;
@@ -100,7 +111,7 @@ public class GuardWatcher {
 
         public void addSleep(final int finish, final int start) {
             sleeps.add(finish - start);
-            wasSleep.add(IntStream.range(start, finish));
+            wasSleep.addAll(IntStream.range(start, finish).boxed().collect(Collectors.toList()));
         }
 
         public Integer sumSleep() {
@@ -114,7 +125,7 @@ public class GuardWatcher {
         public Integer mostSleptMinute() {
 
             Map<Integer, Integer> map = new HashMap<>();
-            wasSleep.forEach(intStream -> intStream.forEach(i -> map.merge(i, 1, (a, b) -> a + b)));
+            wasSleep.forEach(i ->  map.merge(i, 1, (a, b) -> a + b));
 
             return map.entrySet()
                     .stream()
@@ -122,13 +133,29 @@ public class GuardWatcher {
                     .findFirst()
                     .get()
                     .getKey();
+        }
 
+        //most frequently asleep on the same minute
+        public Integer mostFrequentMinuteCount(){
+            if (wasSleep.size() == 0) return 0;
+            Map<Integer, Integer> map = new HashMap<>();
+            wasSleep.forEach(i -> map.merge(i, 1, (a, b) -> a + b));
 
+            return map.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .findFirst()
+                    .get()
+                    .getValue();
         }
 
         @Override
         public int compareTo(Object o) {
             return ((GuardLog) o).sumSleep().compareTo(this.sumSleep());
+        }
+
+        public int compareTo2(Object o) {
+            return ((GuardLog) o).mostFrequentMinuteCount().compareTo(this.sumSleep());
         }
 
         @Override
