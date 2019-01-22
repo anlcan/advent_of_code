@@ -33,6 +33,43 @@ public class Fabric {
     }
 
 
+    public String nonOverlpapping(){
+        int size = 1000;
+        String empty = ".";
+
+        String[][] fabric = new String[size][size];
+        for (int i = 0; i < size; i++) {
+            Arrays.fill(fabric[i], empty);
+        }
+
+        List<String> ids = claims.stream().map(Claim::getId).collect(Collectors.toList());
+
+
+
+        for (Claim claim : claims) {
+
+            for (int i = claim.getX(); i < claim.getX() + claim.getWidth(); i++) {
+
+                for (int j = claim.getY(); j < claim.getY() + claim.getHeight(); j++) {
+                    String id = fabric[i][j];
+                    if (id.equals(".")) {
+                        fabric[i][j] = claim.id;
+                    } else if (id.equals("X")){
+                        ids.remove(claim.id);
+                        break;
+                    } else {
+                        ids.remove(id);
+                        ids.remove(claim.id);
+                        fabric[i][j] = "X";
+                        break;
+                    }
+                }
+            }
+        }
+
+        return ids.get(0);
+    }
+
     /*
     How many square inches of fabric are within two or more claims?
      */

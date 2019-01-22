@@ -46,6 +46,14 @@ public class ThreeTests {
     void overlapIntput1(){
         List<String> claims = Util.readStrings("/three/input.txt");
         Fabric f = new Fabric(claims);
-        System.out.println(f.overlapArea()); // not 238
+        assertEquals(111935,f.overlapArea()); // not 238
     }
+
+    @Test
+    void overlapIntput2(){
+        List<String> claims = Util.readStrings("/three/input.txt");
+        Fabric f = new Fabric(claims);
+        System.out.println(f.nonOverlpapping());
+    }
+
 }
