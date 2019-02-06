@@ -25,7 +25,7 @@ data class Point(var x: Int, var y: Int, val velX: Int, val velY: Int) {
     }
 }
 
-class Manager(val instructions: List<String>) {
+class Manager(instructions: List<String>) {
 
     val points: MutableList<Point> = mutableListOf()
     var coords: MutableList<String> = mutableListOf()
@@ -91,12 +91,8 @@ class Manager(val instructions: List<String>) {
 
 
         val bufferedImage = BufferedImage(300, 300, TYPE_INT_RGB)
-
-
-
         points.forEach {
-            //Math.abs(minY) + p.y][Math.abs(minX) + p.x
-            bufferedImage.setRGB((-1 * minX) + it.x,( -1 * minY) + it.y, white.rgb)
+            bufferedImage.setRGB((-1 * minX) + it.x, (-1 * minY) + it.y, white.rgb)
         }
         bufferedImage.flush()
         ImageIO.write(bufferedImage, "png", tmpfile)
