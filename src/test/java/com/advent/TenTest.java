@@ -59,12 +59,12 @@ public class TenTest {
     void challengeOne() throws InterruptedException {
         List<String> input = Util.readStrings("/ten/challenge1.txt");
         Manager manager = new Manager(input);
-
-        while(true) {
+        int i = 0;
+        while(i++ < 10054) {
             manager.tick();
-            manager.print();
-            System.out.println();
-            Thread.sleep(100);
+            manager.print(true, String.valueOf(i));
+            ///Thread.sleep(a);
         }
     }
+
 }

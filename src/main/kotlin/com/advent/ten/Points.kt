@@ -1,6 +1,15 @@
 package com.advent.ten
 
+
+import java.awt.Color
+import java.awt.image.BufferedImage
+import java.awt.image.BufferedImage.TYPE_INT_RGB
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.regex.Pattern
+import javax.imageio.ImageIO
+
 
 /**
  * Created on 2019-02-04.
@@ -10,11 +19,16 @@ data class Point(var x: Int, var y: Int, val velX: Int, val velY: Int) {
         this.x += this.velX
         this.y += this.velY
     }
+
+    fun key(): String {
+        return "$x,$y"
+    }
 }
 
 class Manager(val instructions: List<String>) {
 
     val points: MutableList<Point> = mutableListOf()
+    var coords: MutableList<String> = mutableListOf()
 
     companion object {
         private val PATTERN = Pattern.compile("position=<([^,]+),([^>]+)> velocity=<([^,]*),([^>]*)>")
@@ -36,44 +50,56 @@ class Manager(val instructions: List<String>) {
 
     init {
         for (instruction in instructions) {
-            points.add(parse(instruction))
+            val parsed = parse(instruction)
+            points.add(parsed)
+            coords.add(parsed.key())
         }
     }
 
     fun tick() {
-        points.forEach(Point::tick)
+
+        coords.clear()
+        points.forEach {
+            it.tick()
+            coords.add(it.key())
+        }
     }
 
     fun print() {
+        print(false)
+    }
+
+    fun print(log2file: Boolean, fileName: String? = "") {
         val maxX = points.stream().mapToInt(Point::x).max().asInt
         val minX = points.stream().mapToInt(Point::x).min().asInt
 
         val maxY = points.stream().mapToInt(Point::y).max().asInt
         val minY = points.stream().mapToInt(Point::y).min().asInt
 
-        val map: MutableList<CharArray> = mutableListOf()
-
-
         val rangeX = maxX - minX + 1
         val rangeY = maxY - minY + 1
 
-        IntRange(0, rangeY).forEach {
-            val charArray = CharArray(rangeX)
-            charArray.fill('.')
-            map.add(charArray)
-        }
 
-        for (p in points) {
-            map[Math.abs(minY) + p.y][Math.abs(minX) + p.x] = '#' // needs adjust according to minx minY
+        if (rangeX > 300 || rangeY > 300) {
+            return
         }
+        println("$rangeX $rangeY")
+        val white = Color.white
 
-        for (ca in map) {
-            for (c in ca) {
-                print(c)
-            }
-            println("")
+        val tmpDir: Path = Paths.get(this.javaClass.getResource("/ten").toURI())
+        val tmpfile = Files.createTempFile(tmpDir, fileName, ".png").toFile()
+
+
+        val bufferedImage = BufferedImage(300, 300, TYPE_INT_RGB)
+
+
+
+        points.forEach {
+            //Math.abs(minY) + p.y][Math.abs(minX) + p.x
+            bufferedImage.setRGB((-1 * minX) + it.x,( -1 * minY) + it.y, white.rgb)
         }
-
+        bufferedImage.flush()
+        ImageIO.write(bufferedImage, "png", tmpfile)
 
     }
 }
