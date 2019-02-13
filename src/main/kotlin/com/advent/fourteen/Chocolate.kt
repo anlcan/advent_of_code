@@ -23,15 +23,15 @@ class Recipes(val input: List<Int>) {
         process.addAll(parse(sum))
         cooks.forEach { it.index = (it.index + process[it.index] + 1) % process.size }
     }
-    /*
+
     override fun toString(): String {
         val map: MutableList<String> = process.map { " $it " }.toMutableList()
-
+        //
         map[cooks[0].index] = "(${map[cooks[0].index].strip()})"
         map[cooks[1].index] = "[${map[cooks[1].index].strip()}]"
         return map.map { String.format("%3s", it) }.joinToString("")
     }
-    */
+
     fun getScore(after: Int, num: Int = 10): String {
         val index = initialSize + after - 2 // 1 for index, the other one i don't kow
         return process.subList(index, index + num)
